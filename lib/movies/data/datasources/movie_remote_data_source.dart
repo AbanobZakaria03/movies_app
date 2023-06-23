@@ -91,6 +91,7 @@ class MovieRemoteDataSourceImpl extends MovieRemoteDataSource {
   @override
   Future<List<RecommendationModel>> getMovieRecommendations(
       MovieRecommendationsParams params) async {
+    print(ApiConstants.movieRecommendationsPath(params.id));
     final response =
         await Dio().get(ApiConstants.movieRecommendationsPath(params.id));
     if (response.statusCode == 200) {

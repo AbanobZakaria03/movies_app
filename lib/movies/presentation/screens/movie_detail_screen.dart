@@ -6,14 +6,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:movies_app/core/constants/app_strings.dart';
 import 'package:movies_app/core/network/api_constants.dart';
 import 'package:movies_app/core/utils/enums.dart';
-import 'package:movies_app/movies/domain/entities/recommendation.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/services/services_locator.dart';
 
 import '../../domain/entities/genre.dart';
-import '../../domain/entities/movie_details.dart';
 import '../controllers/movie_details_bloc.dart';
+import '../controllers/movie_details_event.dart';
+import '../controllers/movie_details_state.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   final int id;
@@ -46,150 +46,149 @@ class MovieDetailContent extends StatelessWidget {
         return CustomScrollView(
           key: const Key('movieDetailScrollView'),
           slivers: [
-
-            state.movieDetailsState==RequestState.loading?
-        const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()),)
-        : state.movieDetailsState==RequestState.error?
-         SliverToBoxAdapter(child: Text(state.message),)
-        :
-            SliverAppBar(
-              pinned: true,
-              expandedHeight: 250.0,
-              flexibleSpace: FlexibleSpaceBar(
-                background: FadeIn(
+            state.movieDetailsState == RequestState.loading
+                ? const SliverToBoxAdapter(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : state.movieDetailsState == RequestState.error
+                    ? SliverToBoxAdapter(
+                        child: Text(state.message),
+                      )
+                    : SliverAppBar(
+                        pinned: true,
+                        expandedHeight: 250.0,
+                        flexibleSpace: FlexibleSpaceBar(
+                          background: FadeIn(
+                            duration: const Duration(milliseconds: 500),
+                            child: ShaderMask(
+                              shaderCallback: (rect) {
+                                return const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    Colors.black,
+                                    Colors.black,
+                                    Colors.transparent,
+                                  ],
+                                  stops: [0.0, 0.5, 1.0, 1.0],
+                                ).createShader(
+                                  Rect.fromLTRB(
+                                      0.0, 0.0, rect.width, rect.height),
+                                );
+                              },
+                              blendMode: BlendMode.dstIn,
+                              child: CachedNetworkImage(
+                                width: MediaQuery.of(context).size.width,
+                                imageUrl: ApiConstants.imageUrl(
+                                    state.movieDetails?.backdropPath ?? ''),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+            if (state.movieDetailsState == RequestState.success)
+              SliverToBoxAdapter(
+                child: FadeInUp(
+                  from: 20,
                   duration: const Duration(milliseconds: 500),
-                  child: ShaderMask(
-                    shaderCallback: (rect) {
-                      return const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black,
-                          Colors.black,
-                          Colors.transparent,
-                        ],
-                        stops: [0.0, 0.5, 1.0, 1.0],
-                      ).createShader(
-                        Rect.fromLTRB(0.0, 0.0, rect.width, rect.height),
-                      );
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: CachedNetworkImage(
-                      width: MediaQuery.of(context).size.width,
-                      imageUrl: ApiConstants.imageUrl(
-                          state.movieDetails!.backdropPath),
-                      fit: BoxFit.cover,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(state.movieDetails!.title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 23,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.2,
+                            )),
+                        const SizedBox(height: 8.0),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2.0,
+                                horizontal: 8.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[800],
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
+                              child: Text(
+                                state.movieDetails!.releaseDate.split('-')[0],
+                                style: const TextStyle(
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16.0),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 20.0,
+                                ),
+                                const SizedBox(width: 4.0),
+                                Text(
+                                  (state.movieDetails!.voteAverage / 2)
+                                      .toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 4.0),
+                                Text(
+                                  '(${state.movieDetails!.voteAverage})',
+                                  style: const TextStyle(
+                                    fontSize: 1.0,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 16.0),
+                            Text(
+                              _showDuration(state.movieDetails!.runtime),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20.0),
+                        Text(
+                          state.movieDetails!.overview,
+                          style: const TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Text(
+                          '${AppStrings.genres}: ${_showGenres(state.movieDetails!.genres)}',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-
-            if(state.movieDetailsState==RequestState.success)
-            SliverToBoxAdapter(
-              child: FadeInUp(
-                from: 20,
-                duration: const Duration(milliseconds: 500),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(state.movieDetails!.title,
-                          style: GoogleFonts.poppins(
-                            fontSize: 23,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                          )),
-                      const SizedBox(height: 8.0),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 2.0,
-                              horizontal: 8.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                            child: Text(
-                              state.movieDetails!.releaseDate.split('-')[0],
-                              style: const TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 20.0,
-                              ),
-                              const SizedBox(width: 4.0),
-                              Text(
-                                (state.movieDetails!.voteAverage / 2)
-                                    .toStringAsFixed(1),
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(width: 4.0),
-                              Text(
-                                '(${state.movieDetails!.voteAverage})',
-                                style: const TextStyle(
-                                  fontSize: 1.0,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 16.0),
-                          Text(
-                            _showDuration(state.movieDetails!.runtime),
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20.0),
-                      Text(
-                        state.movieDetails!.overview,
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        '${AppStrings.genres}: ${_showGenres(state.movieDetails!.genres)}',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-
-
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 24.0),
               sliver: SliverToBoxAdapter(

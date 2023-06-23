@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class Movie extends Equatable {
+class Movie {
   final int id;
   final String title;
   final String backdropPath;
@@ -18,15 +16,4 @@ class Movie extends Equatable {
     required this.voteAverage,
     required this.releaseDate,
   });
-
-  @override
-  List<Object> get props => [
-        id,
-        title,
-        backdropPath,
-        genreIds,
-        overview,
-        voteAverage,
-        releaseDate,
-      ];
 }

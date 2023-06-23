@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class Recommendation extends Equatable {
+class Recommendation {
   final int id;
   final String? backdropPath;
 
@@ -9,6 +7,4 @@ class Recommendation extends Equatable {
     this.backdropPath,
   });
 
-  @override
-  List<Object?> get props => [id, backdropPath];
 }

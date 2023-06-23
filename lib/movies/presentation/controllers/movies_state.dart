@@ -1,67 +1,34 @@
-import 'package:equatable/equatable.dart';
 import '../../../core/utils/enums.dart';
 
 import '../../domain/entities/movie.dart';
 
-class MoviesState extends Equatable {
-  final List<Movie> nowPlayingMovies;
-  final RequestState nowPlayingState;
-  final String nowPlayingMessage;
 
-  final List<Movie> popularMovies;
-  final RequestState popularState;
-  final String popularMessage;
+// 1. import freezed_annotation
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  final List<Movie> topRatedMovies;
-  final RequestState topRatedState;
-  final String topRatedMessage;
+// 2. add 'part' files
+part 'movies_state.freezed.dart';
 
-  const MoviesState({
-    this.nowPlayingMovies = const [],
-    this.nowPlayingState = RequestState.loading,
-    this.nowPlayingMessage = '',
-    this.popularMovies = const [],
-    this.popularState = RequestState.loading,
-    this.popularMessage = '',
-    this.topRatedMovies = const [],
-    this.topRatedState = RequestState.loading,
-    this.topRatedMessage = '',
-  });
+// 3. add @freezed annotation
+@freezed
+// 4. define a class with a mixin
+class MoviesState with _$MoviesState {
+  // 5. define a factory constructor
+  const factory MoviesState(
+      {
+        // 6. list all the arguments/properties
+        @Default([]) List<Movie> nowPlayingMovies,
+        @Default(RequestState.loading)  RequestState nowPlayingState,
+        @Default('') String nowPlayingMessage,
 
-  MoviesState copyWith({
-    List<Movie>? nowPlayingMovies,
-    RequestState? nowPlayingState,
-    String? nowPlayingMessage,
-    List<Movie>? popularMovies,
-    RequestState? popularState,
-    String? popularMessage,
-    List<Movie>? topRatedMovies,
-    RequestState? topRatedState,
-    String? topRatedMessage,
-  }) {
-    return MoviesState(
-      nowPlayingMovies: nowPlayingMovies ?? this.nowPlayingMovies,
-      nowPlayingState: nowPlayingState ?? this.nowPlayingState,
-      nowPlayingMessage: nowPlayingMessage ?? this.nowPlayingMessage,
-      popularMovies: popularMovies ?? this.popularMovies,
-      popularState: popularState ?? this.popularState,
-      popularMessage: popularMessage ?? this.popularMessage,
-      topRatedMovies: topRatedMovies ?? this.topRatedMovies,
-      topRatedState: topRatedState ?? this.topRatedState,
-      topRatedMessage: topRatedMessage ?? this.topRatedMessage,
-    );
-  }
+        @Default([]) List<Movie> popularMovies,
+        @Default(RequestState.loading) RequestState popularState,
+        @Default('') String popularMessage,
 
-  @override
-  List<Object> get props => [
-        nowPlayingMovies,
-        nowPlayingState,
-        nowPlayingMessage,
-        popularMovies,
-        popularState,
-        popularMessage,
-        topRatedMovies,
-        topRatedState,
-        topRatedMessage,
-      ];
+        @Default([]) List<Movie> topRatedMovies,
+        @Default(RequestState.loading) RequestState topRatedState,
+        @Default('') String topRatedMessage,
+        // 7. assign it with the `_Tool` class constructor
+      }) = _MoviesState;
 }
+

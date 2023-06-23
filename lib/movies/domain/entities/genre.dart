@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
-
-class Genre extends Equatable {
+class Genre {
   final int id;
   final String name;
 
@@ -8,7 +6,4 @@ class Genre extends Equatable {
     required this.id,
     required this.name,
   });
-
-  @override
-  List<Object> get props => [id, name];
 }
